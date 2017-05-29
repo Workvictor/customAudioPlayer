@@ -1,6 +1,6 @@
 ##Custom audio player v1
 
-[Live example](victorpunko.ru/development/audio_control)
+[Live example](http://victorpunko.ru/development/audio_control)
 
 ##Usage
 
