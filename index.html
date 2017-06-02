@@ -2,46 +2,57 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>audio control</title>
-    <link rel="stylesheet" href="./player/custom_player_style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>audio control</title>
+  <link rel="stylesheet" href="./index.css">
+  <link rel="stylesheet" href="./player/cPlay_theme.css">
 </head>
 
 <body>
 
-    <section class="custom-player">
-        <div class="custom-player__cover">
-            <img id="player_cover" src="./player/scandroid.jpg" alt="cover_img">
-        </div>
-        <div class="custom-player__content">
-            <div class="player-content">
-                <h1 id="cPlay__title" class="player-content__title">
-                    <span id="title_inner">Scandroid-Connection</span>
-                </h1>
-                <div class="player-progress">
-                    <div id="player_progress" class="player-progress__bar">
-                        <div id="progress_buffer" class="bar-inner_buffer"></div>
-                        <div id="progress_inner" class="bar-inner"></div>
-                    </div>
-                    <div id="player_timeTotal" class="player-progress__time player-progress__time_total">00:00</div>
-                    <div id="player_timeNow" class="player-progress__time player-progress__time_now">00:00</div>
-                </div>
-                <div class="player-controls">
-                    <button role="play" id="player_play" class="custom-player__btn custom-player__btn_play" type="button">play</button>
-                    <svg width="20" height="20" viewBox="0 0 100 100">
-                        <polygon class="customPlayer__btn_fill" points="0,0 100,50 0,100"/>
-                    </svg>
-                    <button id="player_stop" class="custom-player__btn custom-player__btn_stop" type="button">stop</button>
-                </div>
-            </div>
-        </div>
-        <audio id="cPlay__audioSource" src="./player/Scandroid-Connection.mp3"></audio>
-    </section>
+<div class="container">
 
-    <script src="./player/custom_player.js"></script>
-    <script src="./app.js"></script>
+  <!--монтирование в верстку-->
+  <div id="cPlayMountPoint" src="./player/Scandroid-Connection.mp3">
+    <!--точка монтирования-->
+    <!--здесь сгенерируется плейер-->
+    <!--требуется указать id и src к файлу (id="cPlayMountPoint" src="./player/audio.mp3")-->
+</div>
+
+
+  </div>
+  <!--монтирование в верстку-->
+  <div id="cPlayMountPoint2" src="./player/Scandroid-Connection.mp3">
+    <!--здесь сгенерируется новый уникальный плейер-->
+  </div>
+
+  <!--монтирование по этому тэмплэйту-->
+  <template>
+ <section class="cPlay">
+    <div class="cPlayCover">
+      <img src="./player/scandroid.jpg" alt="cover_img">
+    </div>
+    <div class="cPlayContent">
+      <h1 role="title" class="cPlayContent__title">Scandroid-Connection</h1>
+      <div class="cPlayContentProgress">
+        <div role="bar" class="cPlayProgressBar">
+          <div role="buffer" class="cPlayProgressBar__buffer"></div>
+          <div role="progress" class="cPlayProgressBar__inner"></div>
+        </div>
+        <div role="timeNow" class="cPlayContentProgress__time cPlayContentProgress__time_now">00:00</div>
+        <div role="timeTotal" class="cPlayContentProgress__time cPlayContentProgress__time_total">00:00</div>
+      </div>
+      <div class="cPlayControls">
+        <button role="play" class="cPlayControls__btn cPlayControls__btn_play" type="button">play</button>
+        <button role="stop" class="cPlayControls__btn cPlayControls__btn_stop" type="button">stop</button>
+      </div>
+    </div>
+  </section>
+</template>
+  <script src="./player/custom_player.js"></script>
+  <script src="./app.js"></script>
 </body>
 
 </html>

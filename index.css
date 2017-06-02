@@ -1,0 +1,25 @@
+* {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  width: 760px;
+  margin: 0 auto;
+}
+
+
+/* media querie for tablet */
+
+@media screen and (max-width: 767px) {
+  .container {
+    width: 320px;
+    margin: 0 auto;
+  }
+}
