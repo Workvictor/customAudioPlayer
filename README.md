@@ -6,7 +6,7 @@
 ## Usage
 --------
 
-<var player = new Player('путь-к-файлу.mp3'); >
+`var player = new Player('путь-к-файлу.mp3'); `
 
 см. пример верстки
 
