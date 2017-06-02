@@ -27,6 +27,7 @@ function Player(options) {
     controls: "cPlayControls",
     controlBtn: "cPlayControls__btn",
     controlBtnActive: "cPlayControls__btn_active",
+    controlBtnToggle: "cPlayControls__btn_toggle",
     stopBtn: "cPlayControls__btn_stop",
     volume: 'cPlayVolume',
     volumePicker: 'cPlayVolume__picker',
@@ -74,23 +75,24 @@ Player.prototype.generateTemplate = function() {
 
     if (mountOptions.title) {
       title = mountNode(mountPoint, mountOptions.title);
-      title_inner = title.appendChild(addElem(mountOptions.titleInner))
+      title_inner = title.appendChild(addElem([mountOptions.titleInner]))
       title_inner.innerHTML = mountOptions.titleText;
     }
 
     bar = mountNode(mountPoint, mountOptions.bar);
-    buffer = bar.appendChild(addElem(mountOptions.buffer));
-    progress = bar.appendChild(addElem(mountOptions.progress));
+    buffer = bar.appendChild(addElem([mountOptions.buffer]));
+    progress = bar.appendChild(addElem([mountOptions.progress]));
 
-    timeNow = addClassName(mountPoint.appendChild(addElem(mountOptions.time)), mountOptions.timeNow);
-    timeTotal = addClassName(mountPoint.appendChild(addElem(mountOptions.time)), mountOptions.timeTotal);
+    timeNow = mountPoint.appendChild(addElem([mountOptions.time, mountOptions.timeNow]));
+    timeTotal = mountPoint.appendChild(addElem([mountOptions.time, mountOptions.timeTotal]));
     timeNow.innerHTML = '00:00';
     timeTotal.innerHTML = '00:00';
 
     controls = mountNode(mountPoint, mountOptions.controls);
-    playBtn = addClassName(controls.appendChild(addElem(mountOptions.controlBtn)), mountOptions.playBtn);
-    pauseBtn = addClassName(controls.appendChild(addElem(mountOptions.controlBtn)), mountOptions.pauseBtn);
-    stopBtn = (mountOptions.stopBtn !== false) ? addClassName(controls.appendChild(addElem(mountOptions.controlBtn)), mountOptions.stopBtn) : undefined;
+    playBtn = controls.appendChild(addElem([mountOptions.controlBtn, mountOptions.playBtn, mountOptions.controlBtnToggle]));
+    pauseBtn = controls.appendChild(addElem([mountOptions.controlBtn, mountOptions.pauseBtn]));
+    stopBtn = (mountOptions.stopBtn !== false) ?
+      controls.appendChild(addElem([mountOptions.controlBtn, mountOptions.stopBtn])) : undefined;
 
     volume = (mountOptions.volume) ? mountNode(controls, mountOptions.volume) : undefined;
     volumePicker = (volume) ? volume.appendChild(addElem(mountOptions.volumePicker)) : undefined;
@@ -114,22 +116,22 @@ Player.prototype.generateTemplate = function() {
   this.controlButtons = document.getElementsByClassName(mountOptions.controlBtn);
   this.volume_bar = volume;
   this.volume_pick = volumePicker;
+  this.volume_pick.active = false;
 
 
 
-  function addElem(mountClass) {
+  function addElem(classList) {
     var elem = document.createElement('div');
     if (elem.classList) {
-      elem.classList.add(mountClass);
+      if (typeof classList === 'string')
+        elem.classList.add(classList)
+      if (typeof classList === 'array' || typeof classList === 'object') {
+        for (var i = 0; i < classList.length; i++) {
+          elem.classList.add(classList[i]);
+        }
+      }
     }
     return elem;
-  }
-
-  function addClassName(obj, className) {
-    if (obj.classList) {
-      obj.classList.add(className);
-    }
-    return obj;
   }
 
   function addCover(mountPoint) {
@@ -153,7 +155,7 @@ Player.prototype.generateTemplate = function() {
 Player.prototype.init = function() {
   if (this.src) {
     this.source = new Audio();
-    this.source.volume = 0.5;
+    this.setUpVolume(0.5);
 
     this.source.src = this.src;
     this.setBuffering(true);
@@ -209,7 +211,7 @@ Player.prototype.setBuffering = function(parameter) {
 
 Player.prototype.updateProgress = function() {
   if (this.source.duration) {
-    this.progress = Math.floor((this.source.currentTime / this.source.duration) * 100);
+    this.progress = (this.source.currentTime / this.source.duration) * 100;
     this.progress_current.style.width = this.progress + '%';
   } else {
     this.progress_current.style.width = 0 + '%';
@@ -217,8 +219,9 @@ Player.prototype.updateProgress = function() {
   this.playBack = (this.progress == 100) ? false : this.playBack;
 }
 
-Player.prototype.updateVolume = function() {
-  this.source.volume = 0.5;
+Player.prototype.setUpVolume = function(value) {
+  this.source.volume = value;
+  this.setVolumePickPositionX(this.calculateX(value, this.calculateWidth(this.volume_bar)));
 }
 
 Player.prototype.updateBuffer = function() {
@@ -244,7 +247,7 @@ Player.prototype.calculateBuffer = function() {
 Player.prototype.clearActiveState = function() {
   for (var i = 0; i < this.controlButtons.length; i++) {
     if (this.controlButtons[i].classList !== undefined)
-      this.controlButtons[i].classList.remove(this.mountOptions.controlBtnActive);
+      this.controlButtons[i].classList.remove(this.mountOptions.controlBtnActive, this.mountOptions.controlBtnToggle);
   }
 }
 
@@ -257,7 +260,6 @@ Player.prototype.updateTime = function(output, time) {
 }
 
 Player.prototype.initControls = function() {
-  this.volume_pick.active = false;
   var volume_pick = this.volume_pick;
 
   document.addEventListener("mouseup", releasePick);
@@ -276,13 +278,10 @@ Player.prototype.initControls = function() {
 }
 
 Player.prototype.onProgressBarClick = function(event) {
-  var widthTotal = getComputedStyle(this.progress_bar).width.slice(0, -2);
-  var rect = this.progress_bar.getBoundingClientRect();
-  var x = event.clientX - rect.left;
-  this.selectedProgress = Math.floor((x / widthTotal) * 100);
-  if (this.selectedProgress > this.calculateBuffer()) {
-    this.selectedProgress = this.calculateBuffer();
-  }
+  var widthTotal = this.calculateWidth(this.progress_bar);
+  var x = this.getSelectedX(event.clientX, this.progress_bar);
+  this.selectedProgress = (this.selectedProgress > this.calculateBuffer()) ?
+    this.calculateBuffer() : Math.ceil((x / widthTotal) * 100);
   this.source.currentTime = this.source.duration * (this.selectedProgress / 100);
   this.updateTime(this.player_timeNow, this.source.currentTime);
   this.updateProgress();
@@ -291,12 +290,14 @@ Player.prototype.onProgressBarClick = function(event) {
 Player.prototype.onVolumeClick = function(event) {
   this.volume_pick.active = true;
   this.setVolumePickPositionX(this.getSelectedX(event.clientX, this.volume_bar));
+  this.setVolume(this.getSelectedPercent(event.clientX, this.volume_bar));
 }
 
-Player.prototype.onVolumePick = function(event) {
-  this.volume_pick.active = true;
-}
 Player.prototype.setVolumePickPositionX = function(x) {
+  var pick_width = getComputedStyle(this.volume_pick).width.slice(0, -2);
+  this.volume_pick.style.left = Math.floor(x - pick_width / 2) + 'px';
+}
+Player.prototype.setVolumePick = function(percent) {
   var pick_width = getComputedStyle(this.volume_pick).width.slice(0, -2);
   this.volume_pick.style.left = Math.floor(x - pick_width / 2) + 'px';
 }
@@ -307,6 +308,10 @@ Player.prototype.onVolumeMove = function(event) {
     this.setVolumePickPositionX(x);
     this.setVolume(this.getSelectedPercent(event.clientX, this.volume_bar));
   }
+}
+
+Player.prototype.calculateX = function(percent, width) {
+  return width * percent;
 }
 Player.prototype.calculateWidth = function(obj) {
   return getComputedStyle(obj).width.slice(0, -2);
@@ -329,6 +334,7 @@ Player.prototype.startPlay = function(btn) {
       this.source.play();
       this.playBack = true;
       if (btn.classList !== undefined) {
+        this.pauseBtn.classList.add(this.mountOptions.controlBtnToggle);
         btn.classList.add(this.mountOptions.controlBtnActive);
       }
       break;
@@ -336,6 +342,7 @@ Player.prototype.startPlay = function(btn) {
       this.source.pause();
       this.playBack = false;
       if (btn.classList !== undefined) {
+        this.playBtn.classList.add(this.mountOptions.controlBtnToggle);
         btn.classList.add(this.mountOptions.controlBtnActive);
       }
       break;
@@ -344,6 +351,9 @@ Player.prototype.startPlay = function(btn) {
 
 Player.prototype.stopPlay = function(btn) {
   this.clearActiveState();
+  if (this.playBtn.classList !== undefined) {
+    this.playBtn.classList.add(this.mountOptions.controlBtnToggle);
+  }
   this.source.pause();
   this.playBack = false;
   this.source.currentTime = 0;
@@ -352,8 +362,7 @@ Player.prototype.stopPlay = function(btn) {
 }
 Player.prototype.togglePlay = function(event) {
   this.clearActiveState();
-  if (event.target.classList !== undefined)
-    event.target.classList.add(this.mountOptions.controlBtnActive);
+
   switch (event.target) {
     case (this.playBtn):
     case (this.pauseBtn):
