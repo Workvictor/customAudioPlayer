@@ -12,14 +12,14 @@
 
 <body>
 
-<div class="container">
+  <div class="container">
 
-  <!--монтирование в верстку-->
-  <div id="cPlayMountPoint" src="./player/Scandroid-Connection.mp3">
-    <!--точка монтирования-->
-    <!--здесь сгенерируется плейер-->
-    <!--требуется указать id и src к файлу (id="cPlayMountPoint" src="./player/audio.mp3")-->
-</div>
+    <!--монтирование в верстку-->
+    <div id="cPlayMountPoint" src="./player/Scandroid-Connection.mp3">
+      <!--точка монтирования-->
+      <!--здесь сгенерируется плейер-->
+      <!--требуется указать id и src к файлу (id="cPlayMountPoint" src="./player/audio.mp3")-->
+    </div>
 
 
   </div>
@@ -29,27 +29,28 @@
   </div>
 
   <!--монтирование по этому тэмплэйту-->
-  <template>
- <section class="cPlay">
+<template style="display: none">
+ <div class="cPlay">
     <div class="cPlayCover">
       <img src="./player/scandroid.jpg" alt="cover_img">
     </div>
     <div class="cPlayContent">
-      <h1 role="title" class="cPlayContent__title">Scandroid-Connection</h1>
+      <h1 class="cPlayContent__title">Scandroid-Connection</h1>
       <div class="cPlayContentProgress">
-        <div role="bar" class="cPlayProgressBar">
-          <div role="buffer" class="cPlayProgressBar__buffer"></div>
-          <div role="progress" class="cPlayProgressBar__inner"></div>
+        <div class="cPlayProgressBar">
+          <div class="cPlayProgressBar__buffer"></div>
+          <div class="cPlayProgressBar__inner"></div>
         </div>
-        <div role="timeNow" class="cPlayContentProgress__time cPlayContentProgress__time_now">00:00</div>
-        <div role="timeTotal" class="cPlayContentProgress__time cPlayContentProgress__time_total">00:00</div>
+        <div class="cPlayContentProgress__time cPlayContentProgress__time_now">00:00</div>
+        <div class="cPlayContentProgress__time cPlayContentProgress__time_total">00:00</div>
       </div>
       <div class="cPlayControls">
-        <button role="play" class="cPlayControls__btn cPlayControls__btn_play" type="button">play</button>
-        <button role="stop" class="cPlayControls__btn cPlayControls__btn_stop" type="button">stop</button>
+        <button class="cPlayControls__btn cPlayControls__btn_play" type="button">play</button>
+        <button class="cPlayControls__btn cPlayControls__btn_pause" type="button">pause</button>
+        <button class="cPlayControls__btn cPlayControls__btn_stop" type="button">stop</button>
       </div>
     </div>
-  </section>
+  </div>
 </template>
   <script src="./player/custom_player.js"></script>
   <script src="./app.js"></script>

@@ -1,6 +1,7 @@
 "use strict";
 
 //TODO: need some code refactoring later.
+//TODO: some code rewrite for coverImg & static path.
 
 function Player(options) {
   // cSpell:ignoreRegExp /[а-я]/i
@@ -58,48 +59,49 @@ Player.prototype.generateTemplate = function() {
     cover, title, title_inner, bar, buffer,
     progress, timeNow, timeTotal, controls,
     playBtn, pauseBtn, stopBtn, volume,
-    volumePicker, staticPath;
+    volumePicker;
 
   mount = document.getElementById(mountOptions.mountPoint);
   if (!mount) mount = document.getElementsByClassName(mountOptions.mountPoint)[0];
-  if (mount.hasAttribute('src')) {
-    mount.src = mount.getAttribute('src');
-    staticPath = getStaticPath(mount.src);
+  if (mount) {
+    mount.src = mountOptions.source;
+    this.staticPath = getStaticPath(mount.src);
 
-    cPlay = mountNode(mount, mountOptions.main);
+    cPlay = this.mountNode(mount, mountOptions.main);
     mountPoint = cPlay;
-    cover = (mountOptions.cover) ? addCover(mountPoint) : undefined;
+    cover = (mountOptions.cover) ? this.addCover(mountPoint) : undefined;
 
-    content = mountNode(mountPoint, mountOptions.content);
+    content = this.mountNode(mountPoint, mountOptions.content);
     mountPoint = content;
 
     if (mountOptions.title) {
-      title = mountNode(mountPoint, mountOptions.title);
-      title_inner = title.appendChild(addElem([mountOptions.titleInner]))
+      title = this.mountNode(mountPoint, mountOptions.title);
+      title_inner = title.appendChild(this.addElem([mountOptions.titleInner]))
       title_inner.innerHTML = mountOptions.titleText;
     }
 
-    bar = mountNode(mountPoint, mountOptions.bar);
-    buffer = bar.appendChild(addElem([mountOptions.buffer]));
-    progress = bar.appendChild(addElem([mountOptions.progress]));
+    bar = this.mountNode(mountPoint, mountOptions.bar);
+    buffer = bar.appendChild(this.addElem([mountOptions.buffer]));
+    progress = bar.appendChild(this.addElem([mountOptions.progress]));
 
-    timeNow = mountPoint.appendChild(addElem([mountOptions.time, mountOptions.timeNow]));
-    timeTotal = mountPoint.appendChild(addElem([mountOptions.time, mountOptions.timeTotal]));
+    timeNow = mountPoint.appendChild(this.addElem([mountOptions.time, mountOptions.timeNow]));
+    timeTotal = mountPoint.appendChild(this.addElem([mountOptions.time, mountOptions.timeTotal]));
     timeNow.innerHTML = '00:00';
     timeTotal.innerHTML = '00:00';
 
-    controls = mountNode(mountPoint, mountOptions.controls);
-    playBtn = controls.appendChild(addElem([mountOptions.controlBtn, mountOptions.playBtn, mountOptions.controlBtnToggle]));
-    pauseBtn = controls.appendChild(addElem([mountOptions.controlBtn, mountOptions.pauseBtn]));
+    controls = this.mountNode(mountPoint, mountOptions.controls);
+    playBtn = controls.appendChild(this.addElem([mountOptions.controlBtn, mountOptions.playBtn, mountOptions.controlBtnToggle]));
+    pauseBtn = controls.appendChild(this.addElem([mountOptions.controlBtn, mountOptions.pauseBtn]));
     stopBtn = (mountOptions.stopBtn !== false) ?
-      controls.appendChild(addElem([mountOptions.controlBtn, mountOptions.stopBtn])) : undefined;
+      controls.appendChild(this.addElem([mountOptions.controlBtn, mountOptions.stopBtn])) : undefined;
 
-    volume = (mountOptions.volume) ? mountNode(controls, mountOptions.volume) : undefined;
-    volumePicker = (volume) ? volume.appendChild(addElem(mountOptions.volumePicker)) : undefined;
+    volume = (mountOptions.volume) ? this.mountNode(controls, mountOptions.volume) : undefined;
+    volumePicker = (volume) ? volume.appendChild(this.addElem(mountOptions.volumePicker)) : undefined;
   } else {
-    console.error('error: source not found');
+    console.error('error: mountPoint not found');
     console.log('object: ', mount);
-    console.log('"src" attribute is required!');
+    console.log('"id" attribute is required!');
+    console.log('"mountOptions.source" is required!');
   }
 
   this.src = mount.src;
@@ -117,34 +119,6 @@ Player.prototype.generateTemplate = function() {
   this.volume_bar = volume;
   this.volume_pick = volumePicker;
   this.volume_pick.active = false;
-
-
-
-  function addElem(classList) {
-    var elem = document.createElement('div');
-    if (elem.classList) {
-      if (typeof classList === 'string')
-        elem.classList.add(classList)
-      if (typeof classList === 'array' || typeof classList === 'object') {
-        for (var i = 0; i < classList.length; i++) {
-          elem.classList.add(classList[i]);
-        }
-      }
-    }
-    return elem;
-  }
-
-  function addCover(mountPoint) {
-    var cover = mountPoint.appendChild(addElem(mountOptions.cover));
-    var coverImg = document.createElement('img');
-    cover.appendChild(coverImg);
-    coverImg.src = staticPath + mountOptions.coverImg;
-    return cover;
-  }
-
-  function mountNode(mountPoint, mountElem) {
-    return mountPoint.appendChild(addElem(mountElem));
-  }
 
   function getStaticPath(src) {
     var del = /([\w\.\ \-\_]+)\.\w+/;
@@ -217,6 +191,64 @@ Player.prototype.update = function() {
 Player.prototype.setBuffering = function(parameter) {
   this.buffering = parameter;
 }
+Player.prototype.addCover = function(mountPoint) {
+  var cover = mountPoint.appendChild(this.addElem(this.mountOptions.cover));
+  var coverImg = document.createElement('img');
+  cover.appendChild(coverImg);
+  coverImg.src = this.staticPath + this.mountOptions.coverImg;
+  return cover;
+}
+
+Player.prototype.mountNode = function(mountPoint, mountElem) {
+  return mountPoint.appendChild(this.addElem(mountElem));
+}
+Player.prototype.addElem = function(classList) {
+  var elem = document.createElement('div');
+  this.addClassName(elem, classList);
+  return elem;
+}
+
+Player.prototype.addClassName = function(elem, classList) {
+  if (typeof classList === 'string') {
+    (elem.classList) ?
+    elem.classList.add(classList):
+      elem.className += elem.className.length > 0 ? ' ' + classList : classList;
+  }
+
+  if (typeof classList === 'array' || typeof classList === 'object') {
+    if (elem.classList) {
+      for (var i = 0; i < classList.length; i++) {
+        elem.classList.add(classList[i]);
+      }
+    } else {
+      for (var i = 0; i < classList.length; i++) {
+        elem.className += elem.className.length > 0 ? ' ' + classList[i] : classList[i];
+      }
+    }
+  }
+}
+Player.prototype.removeClassName = function(elem, classList) {
+  if (typeof classList === 'string') {
+    (elem.classList) ?
+    elem.classList.remove(classList):
+      elem.className = elem.className.replace(regExp(classList[i]), '');
+  }
+  if (typeof classList === 'array' || typeof classList === 'object') {
+    if (elem.classList) {
+      for (var i = 0; i < classList.length; i++) {
+        elem.classList.remove(classList[i]);
+      }
+    } else {
+      for (var i = 0; i < classList.length; i++) {
+        elem.className = elem.className.replace(regExp(classList[i]), '');
+      }
+    }
+  }
+
+  function regExp(name) {
+    return new RegExp('(^| )' + name + '( |$)');
+  }
+}
 
 Player.prototype.updateProgress = function() {
   if (this.source.duration) {
@@ -255,8 +287,7 @@ Player.prototype.calculateBuffer = function() {
 
 Player.prototype.clearActiveState = function() {
   for (var i = 0; i < this.controlButtons.length; i++) {
-    if (this.controlButtons[i].classList !== undefined)
-      this.controlButtons[i].classList.remove(this.mountOptions.controlBtnActive, this.mountOptions.controlBtnToggle);
+    this.removeClassName(this.controlButtons[i], [this.mountOptions.controlBtnActive, this.mountOptions.controlBtnToggle]);
   }
 }
 
@@ -338,27 +369,21 @@ Player.prototype.startPlay = function(btn) {
     case (this.playBtn):
       this.source.play();
       this.playBack = true;
-      if (btn.classList !== undefined) {
-        this.pauseBtn.classList.add(this.mountOptions.controlBtnToggle);
-        btn.classList.add(this.mountOptions.controlBtnActive);
-      }
+      this.addClassName(this.pauseBtn, this.mountOptions.controlBtnToggle);
+      this.addClassName(btn, this.mountOptions.controlBtnActive);
       break;
     case (this.pauseBtn):
       this.source.pause();
       this.playBack = false;
-      if (btn.classList !== undefined) {
-        this.playBtn.classList.add(this.mountOptions.controlBtnToggle);
-        btn.classList.add(this.mountOptions.controlBtnActive);
-      }
+      this.addClassName(this.playBtn, this.mountOptions.controlBtnToggle);
+      this.addClassName(btn, this.mountOptions.controlBtnActive);
       break;
   }
 }
 
 Player.prototype.stopPlay = function(btn) {
   this.clearActiveState();
-  if (this.playBtn.classList !== undefined) {
-    this.playBtn.classList.add(this.mountOptions.controlBtnToggle);
-  }
+  this.addClassName(this.playBtn, this.mountOptions.controlBtnToggle);
   this.source.pause();
   this.playBack = false;
   this.source.currentTime = 0;
@@ -367,7 +392,6 @@ Player.prototype.stopPlay = function(btn) {
 }
 Player.prototype.togglePlay = function(event) {
   this.clearActiveState();
-
   switch (event.target) {
     case (this.playBtn):
     case (this.pauseBtn):
