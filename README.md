@@ -5,10 +5,13 @@
 
 ## Usage
 --------
-<var player = new Player({
+```javascript
+
+var player = new Player({
     mountPoint: "cPlayMountPoint"
     });
->
+```
+
 
 
 см. пример верстки
