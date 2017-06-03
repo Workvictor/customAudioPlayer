@@ -156,12 +156,12 @@ Player.prototype.init = function() {
   if (this.src) {
     this.source = new Audio();
     this.setUpVolume(0.5);
-
     this.source.src = this.src;
     this.setBuffering(true);
     this.player_timeTotal.innerHTML = "00:00";
     this.progress = 0;
     this.playBack = false;
+    this.initTitleSlide(this.title);
     this.initControls();
     if (this.buffering) {
       this.source.preload = "auto";
@@ -173,6 +173,7 @@ Player.prototype.init = function() {
   }
 
 }
+
 Player.prototype.resetOptions = function(options) {
   var setOptions = this.mountOptions;
   for (var property in options) {
@@ -182,18 +183,24 @@ Player.prototype.resetOptions = function(options) {
   }
   return setOptions;
 }
-Player.prototype.getProps = function(options) {
-  var opt = this.mountOptions;
-  for (var property in options) {
-    if (this.options.hasOwnProperty(property)) {
-      this.options[property] = options[property];
-    }
-    if (!this.options.hasOwnProperty(property)) {
-      console.warn('Нет такой опции:', property, 'Доступные опции: ', this.options);
-      delete options[property];
+
+Player.prototype.initTitleSlide = function(title) {
+  (title.clientWidth < title.scrollWidth) ? init(true): init(false);
+  function init(startSlide) {
+    if (startSlide) {
+      var scrollDirection = 1,
+        scrollDelay = 3000,
+        scrollSpeed = 30;
+      slideTitle();
+      function slideTitle() {
+        var speed = (title.scrollLeft != 0) ? scrollSpeed : scrollDelay;
+        scrollDirection =
+          (title.scrollLeft == 0) ? 1 : (title.scrollLeft == title.scrollWidth - title.clientWidth) ? -1 : scrollDirection;
+        title.scrollLeft += scrollDirection;
+        setTimeout(slideTitle, speed);
+      }
     }
   }
-  return options;
 }
 
 Player.prototype.update = function() {
@@ -297,10 +304,6 @@ Player.prototype.setVolumePickPositionX = function(x) {
   var pick_width = getComputedStyle(this.volume_pick).width.slice(0, -2);
   this.volume_pick.style.left = Math.floor(x - pick_width / 2) + 'px';
 }
-Player.prototype.setVolumePick = function(percent) {
-  var pick_width = getComputedStyle(this.volume_pick).width.slice(0, -2);
-  this.volume_pick.style.left = Math.floor(x - pick_width / 2) + 'px';
-}
 
 Player.prototype.onVolumeMove = function(event) {
   var x = this.getSelectedX(event.clientX, this.volume_bar);
@@ -313,8 +316,8 @@ Player.prototype.onVolumeMove = function(event) {
 Player.prototype.calculateX = function(percent, width) {
   return width * percent;
 }
-Player.prototype.calculateWidth = function(obj) {
-  return getComputedStyle(obj).width.slice(0, -2);
+Player.prototype.calculateWidth = function(obj) {  
+  return obj.offsetWidth;
 }
 Player.prototype.getSelectedX = function(mouseX, obj) {
   return x = mouseX - obj.getBoundingClientRect().left;
