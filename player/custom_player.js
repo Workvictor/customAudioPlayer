@@ -1,3 +1,5 @@
+"use strict";
+
 function Player(options) {
   // cSpell:ignoreRegExp /[а-я]/i
   //определяем настройки по умолчанию
@@ -42,11 +44,7 @@ function Player(options) {
   }
 
   this.generateTemplate();
-
   this.init();
-
-  //TODO: add snapping option
-  //TODO: add volume option
 }
 
 Player.prototype.generateTemplate = function() {
@@ -320,7 +318,7 @@ Player.prototype.calculateWidth = function(obj) {
   return obj.offsetWidth;
 }
 Player.prototype.getSelectedX = function(mouseX, obj) {
-  return x = mouseX - obj.getBoundingClientRect().left;
+  return mouseX - obj.getBoundingClientRect().left;
 }
 Player.prototype.getSelectedPercent = function(mouseX, obj) {
   return (Math.floor((this.getSelectedX(mouseX, obj) / this.calculateWidth(obj)) * 100)) / 100;
