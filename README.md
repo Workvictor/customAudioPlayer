@@ -1,12 +1,15 @@
 #  Custom audio player v1
-=========================
+-------------------------
 
 [Live example](http://victorpunko.ru/development/audio_control)
 
 ## Usage
 --------
+<var player = new Player({
+    mountPoint: "cPlayMountPoint"
+    });
+>
 
-`var player = new Player('путь-к-файлу.mp3'); `
 
 см. пример верстки
 

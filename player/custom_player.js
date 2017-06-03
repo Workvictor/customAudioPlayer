@@ -1,5 +1,7 @@
 "use strict";
 
+//TODO: need some code refactoring later.
+
 function Player(options) {
   // cSpell:ignoreRegExp /[а-я]/i
   //определяем настройки по умолчанию
@@ -7,15 +9,11 @@ function Player(options) {
   var mountOptions = {
     //required
     mountPoint: "cPlayMountPoint",
+    //optional   
     main: "cPlay",
-    source: "./player/Scandroid-Connection.mp3",
-    content: "cPlayContent",
-    playBtn: "cPlayControls__btn_play",
-    pauseBtn: "cPlayControls__btn_pause",
-
-    //optional    
     cover: "cPlayCover",
     coverImg: "cover.jpg",
+    content: "cPlayContent",
     title: "cPlayContent__title",
     titleInner: "cPlayTitleInner",
     titleText: "cPlay title",
@@ -30,11 +28,15 @@ function Player(options) {
     controlBtn: "cPlayControls__btn",
     controlBtnActive: "cPlayControls__btn_active",
     controlBtnToggle: "cPlayControls__btn_toggle",
+    playBtn: "cPlayControls__btn_play",
+    pauseBtn: "cPlayControls__btn_pause",
     stopBtn: "cPlayControls__btn_stop",
     volume: 'cPlayVolume',
     volumePicker: 'cPlayVolume__picker',
+    //utils
     buffering: true,
     snapToBuffer: true,
+    source: false,
   }
 
   this.mountOptions = mountOptions;
@@ -184,12 +186,14 @@ Player.prototype.resetOptions = function(options) {
 
 Player.prototype.initTitleSlide = function(title) {
   (title.clientWidth < title.scrollWidth) ? init(true): init(false);
+
   function init(startSlide) {
     if (startSlide) {
       var scrollDirection = 1,
         scrollDelay = 3000,
         scrollSpeed = 30;
       slideTitle();
+
       function slideTitle() {
         var speed = (title.scrollLeft != 0) ? scrollSpeed : scrollDelay;
         scrollDirection =
@@ -314,7 +318,7 @@ Player.prototype.onVolumeMove = function(event) {
 Player.prototype.calculateX = function(percent, width) {
   return width * percent;
 }
-Player.prototype.calculateWidth = function(obj) {  
+Player.prototype.calculateWidth = function(obj) {
   return obj.offsetWidth;
 }
 Player.prototype.getSelectedX = function(mouseX, obj) {
