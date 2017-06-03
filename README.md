@@ -3,8 +3,6 @@
 Audio player with ie9 support.
 
 [Live example](http://victorpunko.ru/development/audio_control)
-![img](http://victorpunko.ru/development/audio_control)
-
 
 ## Simple to use
 --------
@@ -59,3 +57,8 @@ var player = new Player({
   </div>
 
 ```
+
+
+## Template classNames
+
+![img](https://github.com/Workvictor/customAudioPlayer/blob/master/help/classnames.jpg)
